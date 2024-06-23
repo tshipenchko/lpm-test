@@ -40,6 +40,9 @@ jobs:
       - name: Build with cross
         run: cross build --release --target ${{ matrix.arch }}-unknown-linux-gnu
 
+      - name: Rename binary file
+        run: mv target/${{ matrix.arch }}-unknown-linux-gnu/release/lpm{,${{ matrix.arch }}}
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v2
         with:
