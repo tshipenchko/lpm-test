@@ -5,46 +5,35 @@ on:
     types: [created]
 
 jobs:
-  build-and-release:
-    if: startsWith(github.event.release.tag_name, 'v')
+  build:
+    name: Build and upload Rust binaries
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        arch: [x86_64, i386, aarch64, arm, armv7, armv6l]
+        target:
+          - x86_64-unknown-linux-gnu
+          - aarch64-unknown-linux-gnu
+          - armv7-unknown-linux-gnueabihf
+          - i686-unknown-linux-gnu
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Check out the code
+      uses: actions/checkout@v3
 
-      - name: Set up Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-          
-      - name: Cache cargo for ${{ matrix.arch }}
-        uses: actions/cache@v2
-        id: cache-cargo
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-          key: cargo-${{ matrix.arch }}-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            cargo-${{ matrix.arch }}-${{ runner.os }}-
+    - name: Install Rust toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        target: ${{ matrix.target }}
 
-      - name: Install cross
-        run: cargo install cross
+    - name: Build the binary
+      run: cargo build --release --target ${{ matrix.target }}
 
-      - name: Build with cross
-        run: cross build --release --target ${{ matrix.arch }}-unknown-linux-gnu
-
-      - name: Rename binary file
-        run: mv target/${{ matrix.arch }}-unknown-linux-gnu/release/lpm{,${{ matrix.arch }}}
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: lpm.${{ matrix.arch }}
-          path: target/${{ matrix.arch }}-unknown-linux-gnu/release/lpm
+    - name: Upload the binaries to the release
+      uses: snok/build-and-upload-rust-binary@v1
+      with:
+        name: my-rust-binary-${{ matrix.target }}
+        path: target/${{ matrix.target }}/release/my-rust-binary
+        github_token: ${{ secrets.GITHUB_TOKEN }}
