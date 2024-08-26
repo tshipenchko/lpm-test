@@ -18,6 +18,15 @@ jobs:
           - target: i686-unknown-linux-gnu
             arch: i686
             os: ubuntu-latest
+          - target: arm-unknown-linux-gnueabi
+            arch: arm
+            os: ubuntu-latest
+          - target: arm-unknown-linux-gnueabihf
+            arch: armhf
+            os: ubuntu-latest
+          - target: armv7-unknown-linux-gnueabihf
+            arch: armv7
+            os: ubuntu-latest
 
           - target: x86_64-unknown-linux-musl
             arch: x86_64.musl
@@ -28,7 +37,15 @@ jobs:
           - target: i686-unknown-linux-musl
             arch: i686.musl
             os: ubuntu-latest
-
+          - target: arm-unknown-linux-musleabi
+            arch: arm.musl
+            os: ubuntu-latest
+          - target: arm-unknown-linux-musleabihf
+            arch: armhf.musl
+            os: ubuntu-latest
+          - target: armv7-unknown-linux-musleabihf
+            arch: armv7.musl
+            os: ubuntu-latest
 
     runs-on: ${{ matrix.os }}
     steps:
